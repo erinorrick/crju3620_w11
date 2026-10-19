@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Central Tendency Lab | CRJU 3620</title>
+<style>
+  :root {
+    --cu-gold: #CFB87C;
+    --cu-black: #020000;
+    --accessible-gold: #8D7334;
+    --sandstone: #F1EAD8;
+    --gold-tint: #EBDEC2;
+    --white: #FFFFFF;
+    --muted: #5C574C;
+    --dot: #8F8A7D;
+    --good-bg: #E6F0E3;
+    --good-ink: #2F5A26;
+    --bad-bg: #F6E3DF;
+    --bad-ink: #8A2E1C;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 20px;
+    font-family: Georgia, 'Times New Roman', serif;
+    background-color: var(--sandstone);
+    color: var(--cu-black);
+    color-scheme: light;
+  }
+  .wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: var(--sandstone);
+    border: 2px solid var(--cu-gold);
+    border-radius: 6px;
+    padding: 24px;
+  }
+  .banner {
+    background-color: var(--accessible-gold);
+    color: var(--white);
+    padding: 16px 20px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+  }
+  .banner .eyebrow {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--sandstone);
+  }
+  .banner h1 { margin: 6px 0 0 0; font-size: 24px; color: var(--white); }
+  p, li { font-size: 15px; line-height: 1.55; }
+  h2 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    color: var(--accessible-gold);
+    border-bottom: 2px solid var(--cu-gold);
+    padding-bottom: 6px;
+    margin-top: 34px;
+  }
+  h3 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    color: var(--cu-black);
+    margin: 18px 0 6px 0;
+  }
+  .card {
+    background-color: var(--white);
+    border: 2px solid var(--cu-gold);
+    border-radius: 4px;
+    padding: 16px 18px;
+    margin-top: 12px;
+  }
+  .callout {
+    background-color: var(--gold-tint);
+    border-left: 5px solid var(--cu-gold);
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-top: 14px;
+  }
+  .callout .label {
+    margin: 0 0 4px 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--accessible-gold);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .callout p { margin: 0; }
+  label.field { display: block; font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: bold; margin: 12px 0 4px 0; }
+  input[type=text], input[type=number], select, textarea {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    padding: 8px 10px;
+    border: 1px solid var(--accessible-gold);
+    border-radius: 4px;
+    background: var(--white);
+    color: var(--cu-black);
+    max-width: 100%;
+  }
+  input[type=text].wide, select.wide, textarea { width: 100%; }
+  textarea { min-height: 140px; line-height: 1.5; resize: vertical; }
+  input:focus, select:focus, textarea:focus, button:focus-visible { outline: 3px solid var(--cu-gold); outline-offset: 1px; }
+  button {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 9px 16px;
+    border-radius: 4px;
+    border: 2px solid var(--accessible-gold);
+    background-color: var(--accessible-gold);
+    color: var(--white);
+    cursor: pointer;
+    margin-top: 12px;
+  }
+  button.secondary { background-color: var(--white); color: var(--accessible-gold); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .radio-row { display: block; margin: 6px 0; font-family: Arial, Helvetica, sans-serif; font-size: 15px; cursor: pointer; }
+  .radio-row input { margin-right: 8px; }
+  .fb { font-family: Arial, Helvetica, sans-serif; font-size: 14px; border-radius: 4px; padding: 8px 12px; margin-top: 8px; display: none; line-height: 1.45; }
+  .fb.show { display: block; }
+  .fb.good { background: var(--good-bg); color: var(--good-ink); border-left: 4px solid var(--good-ink); }
+  .fb.bad { background: var(--bad-bg); color: var(--bad-ink); border-left: 4px solid var(--bad-ink); }
+  .fb.info { background: var(--gold-tint); color: var(--cu-black); border-left: 4px solid var(--accessible-gold); }
+  .stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .stat { flex: 1 1 140px; background: var(--sandstone); border: 1px solid var(--cu-gold); border-radius: 4px; padding: 8px 10px; text-align: center; }
+  .stat .k { font-family: Arial, Helvetica, sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accessible-gold); font-weight: bold; }
+  .stat .v { font-size: 26px; font-variant-numeric: tabular-nums; }
+  .slider-row { margin-top: 14px; font-family: Arial, Helvetica, sans-serif; font-size: 15px; }
+  input[type=range] { width: 100%; accent-color: #8D7334; margin-top: 6px; }
+  svg { display: block; width: 100%; height: auto; overflow: visible; }
+  svg text { font-family: Arial, Helvetica, sans-serif; }
+  svg line, svg text { pointer-events: none; }
+  .var-item { border-top: 1px solid var(--gold-tint); padding: 12px 0; }
+  .var-item:first-of-type { border-top: none; padding-top: 4px; }
+  .var-name { font-family: Arial, Helvetica, sans-serif; font-weight: bold; font-size: 15px; }
+  .var-desc { font-size: 14px; color: var(--muted); margin: 2px 0 8px 0; }
+  .sel-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .sel-row label { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: var(--muted); display: flex; flex-direction: column; gap: 3px; }
+  table.months { border-collapse: collapse; width: 100%; font-family: Arial, Helvetica, sans-serif; font-size: 14px; margin-top: 10px; table-layout: fixed; }
+  table.months th, table.months td { border: 1px solid var(--cu-gold); padding: 6px 2px; text-align: center; font-variant-numeric: tabular-nums; }
+  table.months th { background: var(--accessible-gold); color: var(--white); font-weight: bold; }
+  .answer-grid { display: flex; flex-wrap: wrap; gap: 14px; }
+  .answer-grid > div { flex: 1 1 180px; }
+  .hint { font-size: 13px; color: var(--muted); font-family: Arial, Helvetica, sans-serif; margin-top: 4px; }
+  .counter { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: var(--muted); text-align: right; margin-top: 4px; }
+  .tip {
+    position: absolute; pointer-events: none; background: var(--cu-black); color: var(--white);
+    font-family: Arial, Helvetica, sans-serif; font-size: 13px; padding: 6px 9px; border-radius: 4px;
+    white-space: nowrap; transform: translate(-50%, -100%); display: none; z-index: 5;
+  }
+  .chart-box { position: relative; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .chart-box svg { min-width: 580px; }
+  .legend { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: var(--cu-black); display: flex; flex-wrap: wrap; gap: 16px; margin: 8px 0 2px 0; align-items: center; }
+  .legend span.sw { display: inline-block; vertical-align: middle; margin-right: 6px; }
+  details { margin-top: 10px; font-family: Arial, Helvetica, sans-serif; font-size: 14px; }
+  details summary { cursor: pointer; color: var(--accessible-gold); font-weight: bold; }
+  table.nbtable { border-collapse: collapse; width: 100%; margin-top: 8px; font-size: 13px; }
+  table.nbtable td, table.nbtable th { border-bottom: 1px solid var(--gold-tint); padding: 4px 6px; text-align: left; }
+  table.nbtable td.n { text-align: right; font-variant-numeric: tabular-nums; }
+  table.nbtable tr.me td { font-weight: bold; background: var(--gold-tint); }
+  pre#summary {
+    white-space: pre-wrap; word-wrap: break-word; background: var(--white); border: 2px solid var(--cu-gold);
+    border-radius: 4px; padding: 14px; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.5; display: none;
+  }
+  .missing { font-family: Arial, Helvetica, sans-serif; font-size: 14px; }
+  .missing ul { margin: 6px 0 0 0; padding-left: 20px; }
+  .swipe { display: none; font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #5C574C; margin-top: 4px; }
+  @media (max-width: 640px) { .swipe { display: block; } }
+  .locked { opacity: 0.45; pointer-events: none; }
+  @media (max-width: 520px) {
+    body { padding: 8px; }
+    .wrap { padding: 14px; }
+    table.months { font-size: 12px; }
+    .stat .v { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="banner">
+    <h1>What&rsquo;s a Typical Neighborhood? A Central Tendency Lab</h1>
+  </div>
+
+  <p>A city council member wants one number: <strong>how much crime does a typical Denver neighborhood have?</strong> In this lab you'll see how outliers move the mean and median, decide which measure fits different CJ variables, calculate the mean, median, and mode for your own neighborhood, and then write a short answer for the council member.</p>
+
+  <div class="callout">
+    <p class="label">Before You Start</p>
+    <p>This page <strong>does not save your work</strong>. If you close or refresh it, everything you've entered will be lost. Plan to finish in one sitting (about 30&ndash;40 minutes), or draft your written answers somewhere else first and paste them in.</p>
+  </div>
+
+  <label class="field" for="studentName">Your name</label>
+  <input type="text" id="studentName" class="wide" autocomplete="name" placeholder="First and last name">
+
+  <!-- PART 1 -->
+  <h2>Part 1: The Outlier Test</h2>
+  <p>Nine people were released from a county jail last month. Here's how many prior arrests each one had. Person 9 starts at 5 prior arrests.</p>
+
+  <div class="card">
+    <h3>The data</h3>
+    <div style="overflow-x:auto;">
+      <table class="months" id="p1Table" aria-label="Prior arrests for each of the nine people">
+        <tr><th scope="col" style="width:24%;">Person</th><th scope="col">1</th><th scope="col">2</th><th scope="col">3</th><th scope="col">4</th><th scope="col">5</th><th scope="col">6</th><th scope="col">7</th><th scope="col">8</th><th scope="col" style="background:#020000;color:#CFB87C;">9</th></tr>
+        <tr><th scope="row">Prior arrests</th><td>0</td><td>1</td><td>1</td><td>2</td><td>2</td><td>3</td><td>3</td><td>4</td><td id="p1Person9" style="font-weight:bold;background:#EBDEC2;">5</td></tr>
+      </table>
+    </div>
+    <div class="hint">Person 9 is the one you'll change. Their number in the table updates as you move the slider.</div>
+
+    <h3 style="margin-top:20px;">Make a prediction first</h3>
+    <p style="margin-top:0;">If Person 9 had <strong>40</strong> prior arrests instead of 5, which measure would change more?</p>
+    <label class="radio-row"><input type="radio" name="pred" value="mean"> The mean would change more</label>
+    <label class="radio-row"><input type="radio" name="pred" value="median"> The median would change more</label>
+    <label class="radio-row"><input type="radio" name="pred" value="same"> They would change by about the same amount</label>
+
+    <div id="p1Body" class="locked" aria-disabled="true">
+      <div class="slider-row">
+        <label for="outlier"><strong>Person 9's prior arrests: <span id="outVal">5</span></strong></label>
+        <input type="range" id="outlier" min="0" max="50" step="1" value="5" disabled aria-describedby="sliderHelp">
+        <div class="hint" id="sliderHelp">Drag the slider (or use the arrow keys) and watch the three measures below.</div>
+      </div>
+
+      <div class="legend" aria-hidden="true">
+        <span><svg width="26" height="10" class="sw" style="display:inline-block;width:26px;margin-right:6px;"><line x1="0" y1="5" x2="26" y2="5" stroke="#020000" stroke-width="2"/></svg>Median</span>
+        <span><svg width="26" height="10" class="sw" style="display:inline-block;width:26px;margin-right:6px;"><line x1="0" y1="5" x2="26" y2="5" stroke="#8D7334" stroke-width="2" stroke-dasharray="5 3"/></svg>Mean</span>
+        <span><svg width="12" height="12" class="sw" style="display:inline-block;width:12px;margin-right:6px;"><circle cx="6" cy="6" r="5" fill="#020000" stroke="#CFB87C" stroke-width="2"/></svg>Person 9</span>
+      </div>
+      <div class="chart-wrap" id="p1ChartWrap" style="position:relative;"><div class="chart-box" id="p1ChartBox">
+        <svg id="p1Chart" viewBox="0 0 640 150" role="img" aria-label="Dot plot of prior arrests for nine people, with mean and median marked"></svg>
+        </div>
+        <div class="tip" id="p1Tip"></div>
+      </div>
+      <div class="swipe">Swipe sideways on the chart to see all of it.</div>
+
+      <div class="stats" aria-live="polite">
+        <div class="stat"><div class="k">Mean</div><div class="v" id="p1Mean">2.3</div></div>
+        <div class="stat"><div class="k">Median</div><div class="v" id="p1Median">2</div></div>
+        <div class="stat"><div class="k">Mode</div><div class="v" id="p1Mode">1, 2, 3</div></div>
+      </div>
+
+      <div class="fb" id="p1Fb"></div>
+
+      <div id="p1ExplainWrap" style="display:none;">
+        <label class="field" for="p1Explain">In a sentence or two: why didn't the median move while the mean jumped?</label>
+        <textarea id="p1Explain" style="min-height:80px;" placeholder="Your explanation"></textarea>
+      </div>
+      <div class="hint">Also notice the mode: this group has three modes (1, 2, and 3). A variable can have more than one.</div>
+    </div>
+  </div>
+
+  <!-- PART 2 -->
+  <h2>Part 2: Pick the Right Measure</h2>
+  <p>For each variable, choose its level of measurement and the <strong>best</strong> measure of central tendency to report. Then click <strong>Check Part 2</strong>.</p>
+  <div class="card" id="varList"></div>
+  <button type="button" id="checkP2">Check Part 2</button>
+  <div class="fb" id="p2Fb"></div>
+
+  <!-- PART 3 -->
+  <h2>Part 3: Your Neighborhood</h2>
+  <p>Choose the neighborhood you've been using in your Excel activities. The table shows how many incidents happened there each month in 2025.</p>
+
+  <label class="field" for="nbSelect">Your neighborhood</label>
+  <select id="nbSelect" class="wide"><option value="">Select your neighborhood&hellip;</option></select>
+
+  <div id="p3Body" class="locked" aria-disabled="true">
+    <div class="card">
+      <h3 id="nbTitle">Monthly incidents, 2025</h3>
+      <div style="overflow-x:auto;">
+        <table class="months" id="monthTable" aria-label="Monthly incident counts for 2025"></table>
+      </div>
+      <button type="button" class="secondary" id="copyMonths">Copy these 12 numbers (to paste into Excel)</button>
+      <div class="fb" id="copyMonthsFb"></div>
+
+      <h3 style="margin-top:22px;">Calculate the three measures</h3>
+      <p style="margin-top:0;">Work it out by hand or in Excel (<code>AVERAGE</code>, <code>MEDIAN</code>, and either <code>MODE.MULT</code> or sorting the values yourself). Then enter your answers.</p>
+      <div class="answer-grid">
+        <div>
+          <label class="field" for="ansMean">Mean (round to 1 decimal)</label>
+          <input type="number" id="ansMean" step="0.1" inputmode="decimal" style="width:100%;">
+        </div>
+        <div>
+          <label class="field" for="ansMedian">Median</label>
+          <input type="number" id="ansMedian" step="0.5" inputmode="decimal" style="width:100%;">
+        </div>
+        <div>
+          <label class="field" for="ansMode">Mode(s)</label>
+          <input type="text" id="ansMode" placeholder="e.g. 52 or 47, 61" style="width:100%;">
+          <label class="radio-row" style="font-size:14px;"><input type="checkbox" id="noMode"> No mode: every value appears only once</label>
+        </div>
+      </div>
+
+      <label class="field" for="ansCat">Most common offense category in your neighborhood (the mode of <code>OFFENSE_CATEGORY_ID</code>)</label>
+      <div class="hint" style="margin-top:0;">Use a PivotTable or <code>COUNTIF</code> on the 2025 file, filtered to your neighborhood.</div>
+      <select id="ansCat" class="wide" style="margin-top:6px;"><option value="">Select a category&hellip;</option></select>
+
+      <button type="button" id="checkP3">Check Part 3</button>
+      <div class="fb" id="p3Fb"></div>
+    </div>
+
+    <div class="card" id="whereCard" style="display:none;">
+      <h3>Where does your neighborhood fall?</h3>
+      <p style="margin-top:0;">Each dot is one of Denver's 78 neighborhoods, placed by its total incidents in 2025. Hover over or tap a dot to see which neighborhood it is.</p>
+      <div class="legend" aria-hidden="true">
+        <span><svg width="26" height="10" class="sw" style="display:inline-block;width:26px;margin-right:6px;"><line x1="0" y1="5" x2="26" y2="5" stroke="#020000" stroke-width="2"/></svg>Median (539)</span>
+        <span><svg width="26" height="10" class="sw" style="display:inline-block;width:26px;margin-right:6px;"><line x1="0" y1="5" x2="26" y2="5" stroke="#8D7334" stroke-width="2" stroke-dasharray="5 3"/></svg>Mean (775)</span>
+        <span><svg width="12" height="12" class="sw" style="display:inline-block;width:12px;margin-right:6px;"><circle cx="6" cy="6" r="5" fill="#020000" stroke="#CFB87C" stroke-width="2"/></svg>Your neighborhood</span>
+      </div>
+      <div class="chart-wrap" id="p3ChartWrap" style="position:relative;"><div class="chart-box" id="p3ChartBox">
+        <svg id="p3Chart" viewBox="0 0 640 200" role="img" aria-label="Dot plot of 2025 incident totals for Denver's 78 neighborhoods"></svg>
+        </div>
+        <div class="tip" id="p3Tip"></div>
+      </div>
+      <div class="swipe">Swipe sideways on the chart to see all of it.</div>
+      <p id="whereText" style="margin-bottom:0;"></p>
+      <details>
+        <summary>Show all 78 neighborhoods as a table</summary>
+        <table class="nbtable" id="nbTable"></table>
+      </details>
+    </div>
+  </div>
+
+  <!-- PART 4 -->
+  <h2>Part 4: Answer the Council Member</h2>
+  <p>Write a short memo (about 4&ndash;6 sentences, at least 60 words) answering: <em>"How much crime does a typical Denver neighborhood have, and how does mine compare?"</em> Your memo should:</p>
+  <ul>
+    <li>Report a "typical" figure using the measure you think is most honest, and explain <strong>why</strong> you chose it over the other.</li>
+    <li>Say where your neighborhood falls compared with that typical figure.</li>
+    <li>Name at least one limitation of the Denver data (think back to the October 22 secondary data page).</li>
+  </ul>
+  <textarea id="memo" placeholder="Dear Council Member..."></textarea>
+  <div class="counter" id="memoCount">0 words</div>
+
+  <!-- SUMMARY -->
+  <h2>Generate Your Submission</h2>
+  <p>Click <strong>Generate Summary</strong>. If anything is missing, the tool will tell you what to fix. Then copy the summary and paste it into the Canvas text box.</p>
+  <button type="button" id="genBtn">Generate Summary</button>
+  <div class="fb bad missing" id="missingFb"></div>
+  <pre id="summary" tabindex="0"></pre>
+  <button type="button" class="secondary" id="copyBtn" style="display:none;">Copy to Clipboard</button>
+  <div class="fb" id="copyFb"></div>
+
+</div>
+
+<script>
+const DATA = {"cats":["aggravated-assault","all-other-crimes","arson","auto-theft","burglary","drug-alcohol","larceny","murder","other-crimes-against-persons","public-disorder","robbery","theft-from-motor-vehicle","white-collar-crime"],"n":{"athmar-park":{"m":[69,43,58,51,44,59,57,53,49,46,46,62],"c":[39,120,0,80,61,69,55,0,29,93,9,66,16]},"auraria":{"m":[34,43,36,40,51,48,42,47,61,64,74,26],"c":[10,168,1,26,6,24,95,0,34,85,4,111,2]},"baker":{"m":[88,62,99,82,81,77,94,78,93,86,74,64],"c":[29,128,3,74,70,62,205,1,51,161,15,161,18]},"barnum":{"m":[25,44,44,41,56,38,47,46,30,23,60,30],"c":[25,144,4,47,31,64,43,0,16,59,6,30,15]},"barnum-west":{"m":[21,13,16,21,30,29,23,23,9,21,35,14],"c":[18,45,0,22,25,29,24,0,10,35,2,32,13]},"bear-valley":{"m":[32,31,35,43,50,37,34,19,26,44,36,33],"c":[18,50,2,66,33,10,34,1,30,93,5,64,14]},"belcaro":{"m":[15,11,15,22,14,13,29,18,16,20,18,21],"c":[1,12,0,16,30,10,44,0,4,39,2,37,17]},"berkeley":{"m":[26,41,26,43,46,39,33,35,46,55,43,47],"c":[14,29,0,45,60,5,129,0,16,75,5,84,18]},"capitol-hill":{"m":[174,149,166,196,168,216,238,216,223,225,210,224],"c":[90,294,5,170,122,344,355,1,110,463,54,372,25]},"cbd":{"m":[154,160,161,197,211,153,186,220,165,184,142,132],"c":[86,567,2,78,47,248,405,2,118,320,30,135,27]},"central-park":{"m":[280,212,310,309,256,319,357,286,269,300,231,312],"c":[92,325,4,262,189,141,1464,0,119,376,46,352,71]},"chaffee-park":{"m":[9,15,13,11,27,25,26,29,31,17,13,17],"c":[10,24,0,43,18,12,37,1,10,26,6,40,6]},"cheesman-park":{"m":[56,55,67,83,59,64,72,85,72,58,54,51],"c":[25,78,0,71,77,34,153,0,34,149,7,134,14]},"cherry-creek":{"m":[47,55,57,66,81,87,68,83,75,72,74,72],"c":[4,46,2,30,56,10,369,0,17,129,10,136,28]},"city-park":{"m":[43,51,35,38,37,28,52,45,35,28,23,17],"c":[22,42,1,27,38,9,88,0,24,103,7,66,5]},"city-park-west":{"m":[55,87,86,70,75,77,81,101,104,84,62,75],"c":[57,159,6,60,83,66,144,1,76,184,23,90,8]},"civic-center":{"m":[108,88,115,143,116,133,154,171,175,139,155,156],"c":[78,499,5,47,48,185,142,2,312,230,18,77,10]},"clayton":{"m":[41,40,32,28,49,42,42,36,34,34,21,28],"c":[22,104,0,28,37,33,60,1,23,61,13,35,10]},"cole":{"m":[24,41,30,14,36,41,27,40,44,39,37,32],"c":[15,71,0,32,50,11,62,1,31,65,7,51,9]},"college-view-south-platte":{"m":[45,62,63,50,68,72,50,68,59,53,47,39],"c":[34,124,5,61,57,50,132,0,36,97,7,53,20]},"congress-park":{"m":[52,57,45,68,52,53,74,63,67,50,50,37],"c":[21,43,1,55,96,16,129,0,15,148,6,131,7]},"cory-merrill":{"m":[37,43,35,46,29,35,35,37,30,32,35,39],"c":[3,20,0,14,25,10,263,0,5,31,13,35,14]},"country-club":{"m":[7,12,11,10,5,6,12,14,9,6,14,7],"c":[1,7,0,8,27,1,25,0,1,13,2,27,1]},"dia":{"m":[229,150,172,188,226,154,183,173,176,182,235,270],"c":[42,386,1,390,37,20,566,0,68,397,10,374,47]},"east-colfax":{"m":[129,102,154,152,145,135,119,151,140,132,105,90],"c":[80,405,1,117,111,220,126,3,71,268,46,77,29]},"elyria-swansea":{"m":[92,70,63,69,71,72,90,69,75,68,76,59],"c":[59,116,2,108,72,47,96,0,48,176,13,124,13]},"five-points":{"m":[459,344,343,352,353,383,402,449,356,423,372,337],"c":[228,758,13,283,263,475,627,3,258,881,73,659,52]},"fort-logan":{"m":[25,14,31,16,27,14,25,29,20,27,23,23],"c":[12,36,1,53,14,7,22,0,14,59,0,44,12]},"gateway-green-valley-ranch":{"m":[131,127,117,136,151,123,150,149,172,165,161,175],"c":[123,165,1,312,90,20,223,2,111,315,40,283,72]},"globeville":{"m":[61,56,58,64,55,63,55,71,67,63,67,65],"c":[40,99,8,79,64,35,126,0,40,124,10,105,15]},"goldsmith":{"m":[14,30,34,39,23,25,47,42,39,50,30,32],"c":[24,44,1,52,35,6,51,1,23,88,7,55,18]},"hale":{"m":[47,37,40,48,58,46,66,58,54,54,45,57],"c":[17,78,0,59,45,4,94,0,27,136,8,117,25]},"hampden":{"m":[69,77,96,74,83,91,84,86,75,80,79,81],"c":[51,90,3,141,47,16,177,3,48,161,17,163,58]},"hampden-south":{"m":[54,48,59,61,55,72,70,65,69,63,52,59],"c":[22,73,1,65,44,21,143,0,28,136,10,141,43]},"harvey-park":{"m":[47,35,30,32,33,26,33,35,48,50,46,30],"c":[34,65,2,67,26,25,58,0,23,63,8,60,14]},"harvey-park-south":{"m":[29,24,29,36,33,43,29,30,27,39,43,43],"c":[20,43,1,55,42,20,59,1,17,69,6,61,11]},"highland":{"m":[89,66,66,65,88,80,80,80,87,101,78,60],"c":[22,51,6,101,83,8,239,0,48,176,8,183,15]},"hilltop":{"m":[19,19,29,30,28,15,11,18,12,21,24,18],"c":[7,26,1,22,17,9,49,0,12,45,5,39,12]},"indian-creek":{"m":[15,5,3,14,8,4,8,13,6,6,7,2],"c":[4,17,1,7,3,0,16,0,2,25,0,11,5]},"jefferson-park":{"m":[31,30,28,29,31,29,34,43,50,30,42,40],"c":[10,28,1,45,39,14,87,1,11,61,13,97,10]},"kennedy":{"m":[24,20,27,22,22,22,28,26,21,22,34,26],"c":[26,44,0,42,14,16,31,0,17,65,6,30,3]},"lincoln-park":{"m":[104,101,115,98,128,130,135,128,116,119,113,102],"c":[63,228,3,121,123,84,220,1,111,256,18,136,25]},"lowry-field":{"m":[40,47,34,38,51,39,50,59,63,54,58,76],"c":[23,70,4,56,47,10,169,2,30,85,11,81,21]},"mar-lee":{"m":[54,47,52,53,29,51,66,67,76,62,81,48],"c":[38,120,1,72,39,35,128,2,35,111,9,76,20]},"marston":{"m":[29,25,19,37,51,29,34,23,22,22,26,29],"c":[14,15,0,44,21,1,74,0,17,56,5,78,21]},"montbello":{"m":[102,102,107,94,119,121,140,120,96,116,126,95],"c":[75,246,9,165,72,21,169,0,86,224,28,194,49]},"montclair":{"m":[36,44,52,46,34,42,37,35,27,35,19,25],"c":[13,49,2,23,31,7,170,0,21,62,11,28,15]},"north-capitol-hill":{"m":[159,121,110,125,120,155,131,133,132,148,114,140],"c":[85,268,5,85,86,194,240,1,105,286,31,180,22]},"north-park-hill":{"m":[39,14,22,19,19,34,30,26,20,16,18,34],"c":[7,40,0,43,25,8,47,0,12,47,2,54,6]},"northeast-park-hill":{"m":[107,64,104,109,99,80,98,106,102,103,75,92],"c":[71,196,5,124,101,52,159,2,90,183,20,95,41]},"overland":{"m":[39,26,46,55,40,41,34,53,39,49,32,41],"c":[12,35,6,51,64,14,119,0,25,81,3,83,2]},"platt-park":{"m":[37,21,13,21,26,28,30,30,41,22,19,16],"c":[3,23,0,30,56,9,53,0,13,50,1,60,6]},"regis":{"m":[10,9,10,4,18,15,15,17,12,16,13,14],"c":[6,18,1,21,16,2,21,0,8,24,5,23,8]},"rosedale":{"m":[13,14,9,15,16,18,21,10,13,10,6,14],"c":[5,12,0,11,19,6,23,1,16,35,2,26,3]},"ruby-hill":{"m":[38,27,54,45,40,41,46,50,52,39,41,41],"c":[43,73,0,51,36,24,65,0,28,93,13,64,24]},"skyland":{"m":[12,17,8,7,14,19,22,20,10,20,9,9],"c":[4,23,0,21,12,5,26,0,5,36,1,30,4]},"sloan-lake":{"m":[43,36,40,34,37,30,39,46,42,37,36,48],"c":[9,36,3,48,72,0,87,0,13,89,3,98,10]},"south-park-hill":{"m":[48,35,32,34,35,35,32,37,38,34,25,23],"c":[24,52,0,31,53,16,59,0,21,70,11,60,11]},"southmoor-park":{"m":[18,22,13,23,16,15,27,18,23,11,27,31],"c":[8,17,0,31,14,4,49,0,5,39,2,65,10]},"speer":{"m":[82,74,74,69,73,73,79,85,117,107,97,76],"c":[23,95,4,93,75,40,231,0,35,182,9,200,19]},"sun-valley":{"m":[31,37,33,32,45,31,26,27,44,43,33,30],"c":[18,87,0,33,17,40,56,0,31,71,20,37,2]},"sunnyside":{"m":[62,56,51,56,57,62,65,56,58,45,49,52],"c":[26,79,2,79,78,13,101,0,24,120,7,120,20]},"union-station":{"m":[122,123,121,149,167,141,157,138,169,137,141,135],"c":[99,397,1,77,57,100,364,2,165,248,23,137,30]},"university":{"m":[37,26,35,40,34,25,23,38,51,44,25,26],"c":[9,34,1,36,25,4,141,1,10,63,3,64,13]},"university-hills":{"m":[53,86,89,68,81,45,55,59,73,99,91,68],"c":[12,34,1,29,40,17,537,0,13,94,10,67,13]},"university-park":{"m":[26,11,24,28,32,29,31,35,32,33,21,28],"c":[5,21,0,23,40,3,105,0,4,48,3,67,11]},"valverde":{"m":[42,32,35,29,35,45,43,27,25,34,41,36],"c":[18,85,5,45,30,69,31,0,16,72,11,32,10]},"villa-park":{"m":[59,52,50,49,66,52,57,42,22,44,43,32],"c":[32,124,1,85,44,42,48,0,22,87,9,66,8]},"virginia-village":{"m":[66,70,61,38,47,52,40,59,66,55,54,58],"c":[15,65,1,74,39,32,161,0,33,108,9,107,22]},"washington-park":{"m":[13,19,16,25,23,18,17,19,35,32,13,10],"c":[7,10,0,17,39,1,43,0,12,39,1,58,13]},"washington-park-west":{"m":[24,26,44,18,45,29,30,35,34,38,38,28],"c":[6,25,1,44,55,14,77,0,4,72,3,82,6]},"washington-virginia-vale":{"m":[75,55,72,68,60,52,70,82,58,72,84,68],"c":[51,89,4,78,84,36,141,0,39,134,21,106,33]},"wellshire":{"m":[3,7,6,4,6,4,2,2,3,8,1,3],"c":[2,4,0,6,6,1,5,0,3,5,0,12,5]},"west-colfax":{"m":[118,91,86,133,121,125,121,136,102,107,109,141],"c":[61,192,5,150,122,127,254,0,61,227,21,150,20]},"west-highland":{"m":[48,30,48,51,59,45,44,43,42,49,48,57],"c":[9,28,2,62,68,2,126,0,19,103,11,119,15]},"westwood":{"m":[70,69,92,66,85,78,98,97,107,87,83,79],"c":[69,253,7,122,62,77,82,2,54,128,19,109,27]},"whittier":{"m":[29,26,21,21,31,26,37,29,22,31,23,21],"c":[19,50,1,28,28,8,42,0,22,65,4,49,1]},"windsor":{"m":[71,59,52,69,49,40,74,64,50,35,51,46],"c":[29,67,0,105,67,6,101,0,25,106,15,89,50]}}};
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const CITY_MEAN = 774.8, CITY_MEDIAN = 539;
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+function mean(a){ return a.reduce((s,x)=>s+x,0)/a.length; }
+function median(a){ const s=[...a].sort((x,y)=>x-y), n=s.length; return n%2 ? s[(n-1)/2] : (s[n/2-1]+s[n/2])/2; }
+function modes(a){
+  const f={}; a.forEach(x=>f[x]=(f[x]||0)+1);
+  const max=Math.max(...Object.values(f));
+  if(max<2) return [];
+  return Object.keys(f).filter(k=>f[k]===max).map(Number).sort((x,y)=>x-y);
+}
+function fmt(x){ return Number.isInteger(x) ? String(x) : x.toFixed(1); }
+function nbName(id){
+  const special = {cbd:'CBD (Central Business District)', dia:'DIA (Denver International Airport)'};
+  if(special[id]) return special[id];
+  return id.split('-').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+}
+function catName(id){
+  const special = {'drug-alcohol':'Drug / alcohol','white-collar-crime':'White-collar crime'};
+  if(special[id]) return special[id];
+  const s=id.replace(/-/g,' '); return s.charAt(0).toUpperCase()+s.slice(1);
+}
+function show(el, cls, html){ el.className='fb show '+cls; el.innerHTML=html; }
+function words(t){ return (t.trim().match(/\S+/g)||[]).length; }
+function esc(s){ return s.replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+/* ---------- PART 1 ---------- */
+const BASE = [0,1,1,2,2,3,3,4];
+let p1Moved = false, p1Prediction = '';
+const p1Svg = $('p1Chart');
+function drawP1(x){
+  const vals = [...BASE, x];
+  const W=640, L=24, R=616, axisY=104, max=50;
+  const sx = v => L + (v/max)*(R-L);
+  const mn = mean(vals), md = median(vals);
+  let g = '';
+  // grid ticks
+  for(let t=0;t<=50;t+=10){
+    g += `<line x1="${sx(t)}" y1="${axisY}" x2="${sx(t)}" y2="${axisY+5}" stroke="#8F8A7D" stroke-width="1"/>`;
+    g += `<text x="${sx(t)}" y="${axisY+20}" font-size="12" fill="#5C574C" text-anchor="middle">${t}</text>`;
+  }
+  g += `<line x1="${L}" y1="${axisY}" x2="${R}" y2="${axisY}" stroke="#8F8A7D" stroke-width="1"/>`;
+  g += `<text x="${(L+R)/2}" y="${axisY+40}" font-size="12" fill="#5C574C" text-anchor="middle">Prior arrests</text>`;
+  // stacked dots
+  const stack = {};
+  vals.forEach((v,i)=>{
+    stack[v]=(stack[v]||0)+1;
+    const cy = axisY - 10 - (stack[v]-1)*17;
+    const me = i===8;
+    g += `<circle cx="${sx(v)}" cy="${cy}" r="${me?7.5:6.5}" fill="${me?'#020000':'#8F8A7D'}" stroke="${me?'#CFB87C':'#FFFFFF'}" stroke-width="2"/>`;
+    g += `<circle cx="${sx(v)}" cy="${cy}" r="12" fill="transparent" data-tip="Person ${i+1}: ${v} prior arrest${v===1?'':'s'}" class="hit"/>`;
+  });
+  // reference lines with direct labels
+  const yTop = 16;
+  const mdX = sx(md), mnX = sx(mn);
+  g += `<line x1="${mdX}" y1="${yTop+6}" x2="${mdX}" y2="${axisY}" stroke="#020000" stroke-width="2"/>`;
+  g += `<line x1="${mnX}" y1="${yTop+6}" x2="${mnX}" y2="${axisY}" stroke="#8D7334" stroke-width="2" stroke-dasharray="5 3"/>`;
+  const close = Math.abs(mnX-mdX) < 80;
+  g += `<text x="${mdX+5}" y="${yTop+2}" font-size="12" font-weight="bold" fill="#020000" text-anchor="start">Median ${fmt(md)}</text>`;
+  g += `<text x="${mnX+5}" y="${yTop+(close?17:2)}" font-size="12" font-weight="bold" fill="#020000" text-anchor="start">Mean ${mn.toFixed(1)}</text>`;
+  p1Svg.innerHTML = g;
+  $('p1Mean').textContent = mn.toFixed(1);
+  $('p1Median').textContent = fmt(md);
+  const m = modes(vals); $('p1Mode').textContent = m.length ? m.join(', ') : 'None';
+  $('outVal').textContent = x;
+  $('p1Person9').textContent = x;
+}
+document.querySelectorAll('input[name=pred]').forEach(r => r.addEventListener('change', () => {
+  p1Prediction = r.value;
+  $('p1Body').classList.remove('locked'); $('p1Body').removeAttribute('aria-disabled');
+  $('outlier').disabled = false;
+  $('p1ExplainWrap').style.display = 'block';
+}));
+$('outlier').addEventListener('input', e => {
+  const x = +e.target.value; drawP1(x); p1Moved = true;
+  if(x >= 30){
+    const verdict = p1Prediction==='mean' ? 'Your prediction was right.' : 'Compare that with your prediction.';
+    show($('p1Fb'),'info', `<strong>${verdict}</strong> With Person 9 at ${x}, the mean is ${mean([...BASE,x]).toFixed(1)}, which is higher than eight of the nine people in the group. The median hasn't moved from 2.`);
+  }
+});
+drawP1(5);
+
+/* ---------- tooltips (shared) ---------- */
+function wireTips(svg, box, tip){
+  function at(e){
+    const t = e.target.closest ? e.target.closest('[data-tip]') : null;
+    if(!t){ tip.style.display='none'; return; }
+    const b = box.getBoundingClientRect(), r = t.getBoundingClientRect();
+    tip.textContent = t.getAttribute('data-tip');
+    tip.style.left = (r.left + r.width/2 - b.left) + 'px';
+    tip.style.top = (r.top - b.top - 4) + 'px';
+    tip.style.display = 'block';
+  }
+  svg.addEventListener('mousemove', at);
+  svg.addEventListener('click', at);
+  svg.addEventListener('mouseleave', ()=> tip.style.display='none');
+  svg.parentElement.addEventListener('scroll', ()=> tip.style.display='none');
+}
+wireTips(p1Svg, $('p1ChartWrap'), $('p1Tip'));
+
+/* ---------- PART 2 ---------- */
+const VARS = [
+  {id:'v1', name:'OFFENSE_CATEGORY_ID', desc:'Type of offense for each incident in the Denver file (larceny, burglary, robbery, and so on).', level:'nominal', best:'mode',
+   why:'Offense categories are labels with no order, so the mode is the only measure that makes sense.'},
+  {id:'v2', name:'DISTRICT_ID', desc:'Police district for each incident, coded 1 through 7.', level:'nominal', best:'mode',
+   why:'The numbers are labels for districts, not amounts. District 6 is not "more" than District 3, so this is nominal and only the mode fits.'},
+  {id:'v3', name:'Feeling of safety (survey item)', desc:'"How safe do you feel walking alone at night?" Very safe / Somewhat safe / Not very safe / Not at all safe.', level:'ordinal', best:'median',
+   why:'The answers have an order but no equal distance between them, so the median is the best choice. The mode is also allowed for ordinal data, but the median uses the ordering.'},
+  {id:'v4', name:'Incidents per neighborhood, 2025', desc:'Total incidents in each of Denver\'s 78 neighborhoods. A few neighborhoods have very high counts.', level:'ratio', best:'median',
+   why:'Counts are ratio-level, but this distribution is skewed by a few very high neighborhoods. The median (539) describes a typical neighborhood better than the mean (775).'},
+  {id:'v5', name:'Age at first arrest', desc:'Age in years for a sample of 500 people. Values cluster evenly around the middle, with no extreme cases.', level:'ratio', best:'mean',
+   why:'Age is ratio-level and this distribution is roughly symmetric, so the mean works well. It uses every value, and there are no outliers to pull it off center.'},
+  {id:'v6', name:'Bail amount', desc:'Bail set for defendants in one county, ranging from $0 to $2,000,000. Most amounts are under $5,000.', level:'ratio', best:'median',
+   why:'Dollar amounts are ratio-level, but a handful of very large bail amounts would drag the mean far above what most defendants face. Report the median.'}
+];
+const LEVELS = [['','Choose…'],['nominal','Nominal'],['ordinal','Ordinal'],['ratio','Interval / Ratio']];
+const MEASURES = [['','Choose…'],['mode','Mode'],['median','Median'],['mean','Mean']];
+const opts = arr => arr.map(([v,t])=>`<option value="${v}">${t}</option>`).join('');
+$('varList').innerHTML = VARS.map((v,i)=>`
+  <div class="var-item">
+    <div class="var-name">${i+1}. ${v.name}</div>
+    <div class="var-desc">${v.desc}</div>
+    <div class="sel-row">
+      <label>Level of measurement<select id="${v.id}L">${opts(LEVELS)}</select></label>
+      <label>Best measure<select id="${v.id}M">${opts(MEASURES)}</select></label>
+    </div>
+    <div class="fb" id="${v.id}F"></div>
+  </div>`).join('');
+let p2Result = null;
+$('checkP2').addEventListener('click', () => {
+  let done=0, correct=0; const rows=[];
+  VARS.forEach(v=>{
+    const L=$(v.id+'L').value, M=$(v.id+'M').value, fb=$(v.id+'F');
+    if(!L || !M){ show(fb,'bad','Choose both a level and a measure.'); rows.push(null); return; }
+    done++;
+    const okL = L===v.level, okM = M===v.best;
+    const ordinalMode = v.level==='ordinal' && M==='mode';
+    if(okL && okM){ correct++; show(fb,'good','<strong>Correct.</strong> '+v.why); }
+    else if(okL && ordinalMode){ correct++; show(fb,'info','<strong>Acceptable.</strong> '+v.why); }
+    else {
+      const parts=[];
+      if(!okL) parts.push('Check the level of measurement.');
+      if(!okM && !ordinalMode) parts.push('Check which measure fits best.');
+      show(fb,'bad','<strong>Not quite.</strong> '+parts.join(' ')+' Hint: '+(okL ? 'think about whether this distribution has extreme values.' : 'ask whether the values have an order, and whether the distance between them means anything.'));
+    }
+    rows.push({L,M,ok:(okL&&(okM||ordinalMode))});
+  });
+  p2Result = {done, correct, rows};
+  if(done<VARS.length) show($('p2Fb'),'bad',`You've answered ${done} of ${VARS.length}. Finish the rest, then check again.`);
+  else show($('p2Fb'), correct===VARS.length?'good':'info', `You got <strong>${correct} of ${VARS.length}</strong> correct. ${correct===VARS.length?'Nice work.':'Read the feedback, adjust any you missed, and check again.'}`);
+});
+
+/* ---------- PART 3 ---------- */
+const nbIds = Object.keys(DATA.n).sort((a,b)=>nbName(a).localeCompare(nbName(b)));
+$('nbSelect').innerHTML += nbIds.map(id=>`<option value="${id}">${nbName(id)} (${id})</option>`).join('');
+$('ansCat').innerHTML += DATA.cats.map(c=>`<option value="${c}">${catName(c)} (${c})</option>`).join('');
+const TOTALS = nbIds.map(id=>({id, t:DATA.n[id].m.reduce((s,x)=>s+x,0)}));
+let current = null, p3Checks = 0, p3Status = null;
+
+$('nbSelect').addEventListener('change', e => {
+  const id = e.target.value;
+  if(!id){ $('p3Body').classList.add('locked'); return; }
+  current = id; p3Checks = 0; p3Status = null;
+  $('p3Body').classList.remove('locked'); $('p3Body').removeAttribute('aria-disabled');
+  const m = DATA.n[id].m;
+  $('nbTitle').textContent = `${nbName(id)}: monthly incidents, 2025`;
+  $('monthTable').innerHTML = `<tr>${MONTHS.map(x=>`<th scope="col">${x}</th>`).join('')}</tr><tr>${m.map(x=>`<td>${x}</td>`).join('')}</tr>`;
+  ['ansMean','ansMedian','ansMode'].forEach(i=>$(i).value=''); $('noMode').checked=false; $('ansMode').disabled=false; $('ansCat').value='';
+  $('p3Fb').className='fb'; $('whereCard').style.display='none';
+});
+$('noMode').addEventListener('change', e => { $('ansMode').disabled = e.target.checked; if(e.target.checked) $('ansMode').value=''; });
+
+$('copyMonths').addEventListener('click', () => {
+  if(!current) return;
+  const txt = DATA.n[current].m.join('\n');
+  copyText(txt, $('copyMonthsFb'), 'Copied. Click a cell in Excel and paste: the numbers will fill one column.');
+});
+
+function parseModes(s){
+  return s.split(/[,;\s]+/).filter(Boolean).map(Number).filter(x=>!isNaN(x)).sort((a,b)=>a-b);
+}
+$('checkP3').addEventListener('click', () => {
+  if(!current) return;
+  const m = DATA.n[current].m;
+  const tMean = mean(m), tMed = median(m), tModes = modes(m);
+  const c = DATA.n[current].c, maxC = Math.max(...c);
+  const topCats = DATA.cats.filter((k,i)=>c[i]===maxC);
+  const aMean = $('ansMean').value.trim(), aMed = $('ansMedian').value.trim();
+  const aNoMode = $('noMode').checked, aModes = parseModes($('ansMode').value), aCat = $('ansCat').value;
+  const msgs = []; let allOk = true;
+
+  if(aMean===''){ msgs.push('<li>Enter the mean.</li>'); allOk=false; }
+  else if(Math.abs(+aMean - tMean) <= 0.051){ msgs.push('<li><strong>Mean: correct.</strong></li>'); }
+  else { allOk=false; msgs.push(`<li><strong>Mean: not quite.</strong> Add all 12 months, then divide by 12.${Math.abs(+aMean - tMean)<1.5?' You\'re close, so check your rounding.':''}</li>`); }
+
+  if(aMed===''){ msgs.push('<li>Enter the median.</li>'); allOk=false; }
+  else if(Math.abs(+aMed - tMed) < 0.01){ msgs.push('<li><strong>Median: correct.</strong></li>'); }
+  else { allOk=false; msgs.push('<li><strong>Median: not quite.</strong> Sort the 12 values from lowest to highest first. With an even number of values, the median is the average of the 6th and 7th values.</li>'); }
+
+  if(!aNoMode && aModes.length===0){ msgs.push('<li>Enter the mode(s), or check "No mode."</li>'); allOk=false; }
+  else if(tModes.length===0){
+    if(aNoMode) msgs.push('<li><strong>Mode: correct.</strong> Every monthly count appears only once, so there is no mode.</li>');
+    else { allOk=false; msgs.push('<li><strong>Mode: not quite.</strong> Check again: does any monthly count actually appear more than once?</li>'); }
+  } else {
+    const same = aModes.length===tModes.length && aModes.every((x,i)=>x===tModes[i]);
+    if(same) msgs.push(`<li><strong>Mode: correct.</strong>${tModes.length>1?' This neighborhood has more than one mode.':''}</li>`);
+    else if(aNoMode){ allOk=false; msgs.push('<li><strong>Mode: not quite.</strong> At least one monthly count appears more than once. Sorting the values makes repeats easy to spot.</li>'); }
+    else if(aModes.every(x=>tModes.includes(x)) && aModes.length<tModes.length){ allOk=false; msgs.push(`<li><strong>Mode: partly right.</strong> You found ${aModes.length===1?'one of the modes':'some of the modes'}, but there ${tModes.length-aModes.length===1?'is one more value that appears':'are more values that appear'} just as often.</li>`); }
+    else { allOk=false; msgs.push('<li><strong>Mode: not quite.</strong> The mode is the value that appears most often. Sort the values and look for repeats.</li>'); }
+  }
+
+  if(!aCat){ msgs.push('<li>Choose the most common offense category.</li>'); allOk=false; }
+  else if(topCats.includes(aCat)) msgs.push(`<li><strong>Offense category: correct.</strong>${topCats.length>1?' Your neighborhood has a tie for most common category, and you picked one of them.':''}</li>`);
+  else { allOk=false; msgs.push('<li><strong>Offense category: not quite.</strong> Filter the 2025 file to your neighborhood and count incidents in each category. The one with the highest count is the mode.</li>'); }
+
+  p3Checks++;
+  const answered = aMean!=='' && aMed!=='' && (aNoMode || aModes.length>0) && !!aCat;
+  p3Status = {answered, allOk, aMean, aMed, aModes, aNoMode, aCat, checks:p3Checks,
+              meanOk: aMean!=='' && Math.abs(+aMean - tMean) <= 0.051,
+              medOk: aMed!=='' && Math.abs(+aMed - tMed) < 0.01,
+              modeOk: tModes.length===0 ? aNoMode : (!aNoMode && aModes.length===tModes.length && aModes.every((x,i)=>x===tModes[i])),
+              catOk: topCats.includes(aCat)};
+  show($('p3Fb'), allOk?'good':'bad', `<ul style="margin:0;padding-left:18px;">${msgs.join('')}</ul>${allOk?'<p style="margin:6px 0 0 0;">All four are correct. Scroll down to see where your neighborhood falls.</p>':''}`);
+  if(answered) drawWhere();
+});
+
+const p3Svg = $('p3Chart');
+function drawWhere(){
+  $('whereCard').style.display='block';
+  const W=640, L=24, R=616, max=4800, step=9;
+  const binCount = {}; TOTALS.forEach(o=>{ const b=Math.floor(o.t/100); binCount[b]=(binCount[b]||0)+1; });
+  const maxStack = Math.max(...Object.values(binCount));
+  const axisY = 40 + maxStack*step;
+  p3Svg.setAttribute('viewBox', `0 0 ${W} ${axisY+48}`);
+  const sx = v => L + (v/max)*(R-L);
+  let g='';
+  for(let t=0;t<=4800;t+=800){
+    g += `<line x1="${sx(t)}" y1="${axisY}" x2="${sx(t)}" y2="${axisY+5}" stroke="#8F8A7D" stroke-width="1"/>`;
+    g += `<text x="${sx(t)}" y="${axisY+20}" font-size="12" fill="#5C574C" text-anchor="middle">${t.toLocaleString()}</text>`;
+  }
+  g += `<line x1="${L}" y1="${axisY}" x2="${R}" y2="${axisY}" stroke="#8F8A7D" stroke-width="1"/>`;
+  g += `<text x="${(L+R)/2}" y="${axisY+38}" font-size="12" fill="#5C574C" text-anchor="middle">Total incidents in 2025</text>`;
+  // bin-stack dots so they don't overlap: bin width 100
+  const bins = {}, sorted=[...TOTALS].sort((a,b)=>a.t-b.t);
+  let meDot = null;
+  sorted.forEach(o=>{
+    const b = Math.floor(o.t/100); bins[b]=(bins[b]||0)+1;
+    const cx = sx(b*100+50), cy = axisY - 7 - (bins[b]-1)*step;
+    const me = o.id===current;
+    if(me){ meDot={cx,cy,o}; return; }
+    g += `<circle cx="${cx}" cy="${cy}" r="4" fill="#8F8A7D" stroke="#FFFFFF" stroke-width="1"/>`;
+    g += `<circle cx="${cx}" cy="${cy}" r="4.5" fill="transparent" data-tip="${nbName(o.id)}: ${o.t.toLocaleString()}"/>`;
+  });
+  const mdX=sx(CITY_MEDIAN), mnX=sx(CITY_MEAN);
+  g += `<line x1="${mdX}" y1="20" x2="${mdX}" y2="${axisY}" stroke="#020000" stroke-width="2"/>`;
+  g += `<line x1="${mnX}" y1="20" x2="${mnX}" y2="${axisY}" stroke="#8D7334" stroke-width="2" stroke-dasharray="5 3"/>`;
+  g += `<text x="${mdX-5}" y="14" font-size="12" font-weight="bold" fill="#020000" text-anchor="end">Median 539</text>`;
+  g += `<text x="${mnX+5}" y="14" font-size="12" font-weight="bold" fill="#020000">Mean 775</text>`;
+  if(meDot){
+    g += `<circle cx="${meDot.cx}" cy="${meDot.cy}" r="7" fill="#020000" stroke="#CFB87C" stroke-width="2.5"/>`;
+    g += `<circle cx="${meDot.cx}" cy="${meDot.cy}" r="5" fill="transparent" data-tip="${nbName(meDot.o.id)}: ${meDot.o.t.toLocaleString()}"/>`;
+    const anchor = meDot.cx > 460 ? 'end' : 'start', dx = meDot.cx > 460 ? -12 : 12;
+    g += `<text x="${meDot.cx+dx}" y="${Math.max(meDot.cy-12, 34)}" font-size="12" font-weight="bold" fill="#020000" text-anchor="${anchor}">${nbName(meDot.o.id).replace(/ \(.*\)/,'')}</text>`;
+  }
+  p3Svg.innerHTML = g;
+
+  const mine = TOTALS.find(o=>o.id===current).t;
+  const fewer = TOTALS.filter(o=>o.t<mine).length;
+  const vsMed = mine > CITY_MEDIAN ? 'above' : (mine < CITY_MEDIAN ? 'below' : 'equal to');
+  const vsMean = mine > CITY_MEAN ? 'above' : 'below';
+  $('whereText').innerHTML = `<strong>${nbName(current)}</strong> had <strong>${mine.toLocaleString()}</strong> incidents in 2025. That's ${vsMed} the median neighborhood (539) and ${vsMean} the mean (775). ${fewer===77 ? 'No other neighborhood had more.' : (fewer===0 ? 'No other neighborhood had fewer.' : fewer+' of the other 77 neighborhoods had fewer incidents.')}`;
+  $('nbTable').innerHTML = '<tr><th>Neighborhood</th><th style="text-align:right;">2025 incidents</th></tr>' +
+    [...TOTALS].sort((a,b)=>b.t-a.t).map(o=>`<tr class="${o.id===current?'me':''}"><td>${nbName(o.id)}</td><td class="n">${o.t.toLocaleString()}</td></tr>`).join('');
+}
+wireTips(p3Svg, $('p3ChartWrap'), $('p3Tip'));
+
+/* ---------- PART 4 ---------- */
+$('memo').addEventListener('input', () => { const n = words($('memo').value); $('memoCount').textContent = n + (n===1?' word':' words') + (n<60?` (at least 60 needed)`:''); });
+
+/* ---------- SUMMARY ---------- */
+$('genBtn').addEventListener('click', () => {
+  const miss = [];
+  const name = $('studentName').value.trim();
+  if(!name) miss.push('Enter your name at the top of the page.');
+  if(!p1Prediction) miss.push('Part 1: make your prediction.');
+  if(!p1Moved) miss.push('Part 1: move the slider to test your prediction.');
+  if(words($('p1Explain').value) < 8) miss.push('Part 1: explain why the median didn\'t move (at least one full sentence).');
+  if(!p2Result || p2Result.done < VARS.length) miss.push('Part 2: answer all six variables and click "Check Part 2."');
+  if(!current) miss.push('Part 3: choose your neighborhood.');
+  else if(!p3Status || !p3Status.answered) miss.push('Part 3: enter the mean, median, mode, and offense category, then click "Check Part 3."');
+  if(words($('memo').value) < 60) miss.push('Part 4: your memo needs at least 60 words.');
+  if(miss.length){
+    show($('missingFb'),'bad missing','<strong>Almost there. Fix these first:</strong><ul>'+miss.map(m=>'<li>'+m+'</li>').join('')+'</ul>');
+    $('summary').style.display='none'; $('copyBtn').style.display='none'; return;
+  }
+  $('missingFb').className='fb';
+  // Re-check Part 2 with current selections so the summary reflects final answers
+  $('checkP2').click();
+  const predText = {mean:'The mean would change more', median:'The median would change more', same:'About the same'}[p1Prediction];
+  const p2Lines = VARS.map((v,i)=>{
+    const L=$(v.id+'L'), M=$(v.id+'M'); const r=p2Result.rows[i];
+    return `  ${i+1}. ${v.name}: Level = ${L.options[L.selectedIndex].text}; Measure = ${M.options[M.selectedIndex].text} ${r && r.ok ? '[correct]' : '[incorrect]'}`;
+  }).join('\n');
+  const s = p3Status, mine = TOTALS.find(o=>o.id===current).t;
+  const modeTxt = s.aNoMode ? 'No mode' : s.aModes.join(', ');
+  const out =
+`CRJU 3620 | Central Tendency Lab: What's a Typical Neighborhood?
+Name: ${name}
+Generated: ${new Date().toLocaleString()}
+
+PART 1: THE OUTLIER TEST
+Prediction: ${predText}
+Explanation: ${$('p1Explain').value.trim()}
+
+PART 2: PICK THE RIGHT MEASURE (${p2Result.correct} of ${VARS.length} correct)
+${p2Lines}
+
+PART 3: MY NEIGHBORHOOD
+Neighborhood: ${nbName(current)} (${current})
+Monthly incidents, 2025: ${DATA.n[current].m.join(', ')}
+Mean: ${s.aMean} ${s.meanOk?'[correct]':'[incorrect]'}
+Median: ${s.aMed} ${s.medOk?'[correct]':'[incorrect]'}
+Mode(s): ${modeTxt} ${s.modeOk?'[correct]':'[incorrect]'}
+Most common offense category: ${catName(s.aCat)} ${s.catOk?'[correct]':'[incorrect]'}
+Times checked: ${s.checks}
+2025 total: ${mine.toLocaleString()} incidents (city median 539, city mean 775)
+
+PART 4: MEMO TO THE COUNCIL MEMBER (${words($('memo').value)} words)
+${$('memo').value.trim()}
+`;
+  const pre = $('summary'); pre.textContent = out; pre.style.display='block';
+  $('copyBtn').style.display='inline-block'; $('copyFb').className='fb';
+  pre.scrollIntoView({behavior:'smooth', block:'start'});
+});
+
+function copyText(txt, fbEl, okMsg){
+  const fallback = () => {
+    const ta = document.createElement('textarea'); ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    let ok=false; try { ok = document.execCommand('copy'); } catch(e){}
+    document.body.removeChild(ta);
+    if(ok) show(fbEl,'good',okMsg);
+    else show(fbEl,'bad','Your browser blocked automatic copying. Select the text yourself and press Ctrl+C (Windows) or Cmd+C (Mac).');
+  };
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(txt).then(()=>show(fbEl,'good',okMsg)).catch(fallback);
+  } else fallback();
+}
+$('copyBtn').addEventListener('click', () => {
+  copyText($('summary').textContent, $('copyFb'), 'Copied. Paste it into the text box on the Canvas assignment and submit.');
+  const r = document.createRange(); r.selectNodeContents($('summary')); const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+});
+</script>
+</body>
+</html>
